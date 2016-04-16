@@ -5,7 +5,7 @@
 // @description  PGP encrypt your messages
 // @author       Petar Segina, Stanko Krtalic Rusendic, Luka Strizic, Marko Bozac
 // @match        https://www.messenger.com/*
-// @grant        none
+// @grant        GM_xmlhttpRequest
 // @run-at       document-start
 // ==/UserScript==
 
@@ -13,7 +13,7 @@ var incomingMessageBubbleClass = "_3oh-";
 
 var outputMessageTransformer = function(input) {
     var mgp = new MPG();
-    return mgp.encrypt(input, []);
+    return mgp.encrypt(input, ['Stanko', 'Petar']);
 };
 
 var inputMessageTransformer = function(body) {
@@ -138,13 +138,23 @@ window.watch("__d", function(id, oldVal, newVal) {
 MPG = function() {
   this.message = '';
   this.recipients = [];
+  this.url = {
+    encrypt: 'http://localhost:3000/encrypt',
+    decrypt: 'http://localhost:3000/decrypt'
+  };
 };
 
 MPG.prototype.encrypt = function(message, recipients) {
+  debugger
   this.message = message;
   this.recipients = recipients;
 
-  return this.message.toUpperCase();
+  var data = {
+    message: message,
+    recipients: recipients
+  };
+
+  return this.ajax(this.url.encrypt, data, 'POST');
 };
 
 MPG.prototype.decrypt = function(message) {
@@ -164,4 +174,31 @@ MPG.prototype.extractMessages = function(message) {
   }
 
   return;
+};
+
+MPG.prototype.ajax = function(url, body, verb) {
+  debugger
+  var request = GM_xmlHttpRequest({
+    synchronous: true,
+    url: url,
+    method: verb,
+    data: body && JSON.stringify(body)
+  });
+
+
+  if (request.status === 200) {
+    var message = '';
+    try {
+      message = JSON.parse(request.responseText);
+      return message.message;
+    }
+    catch(e) {
+      alert(e);
+    }
+  }
+  else {
+    alert('No response from server!');
+  }
+
+  return null;
 };
