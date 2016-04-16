@@ -9,6 +9,10 @@
 // @run-at       document-start
 // ==/UserScript==
 
+var outputMessageTransformer = function(input) {
+    return input.toUpperCase();
+}
+
 if (!Object.prototype.watch) {
   Object.defineProperty(Object.prototype, "watch", {
       enumerable: false
@@ -77,7 +81,7 @@ window.watch("__d", function(id, oldVal, newVal) {
                 obj._originals = {};
                 obj._originals.getValue = obj.getValue;
                 obj.getValue = function() {
-                  return this._originals.getValue.bind(this)().toUpperCase();
+                  return outputMessageTransformer(this._originals.getValue.bind(this)());
                 };
               }
             }
