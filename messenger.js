@@ -13,7 +13,7 @@ var incomingMessageBubbleClass = "_3oh-";
 
 var outputMessageTransformer = function(input) {
     return input.toUpperCase();
-}
+};
 
 if (!Object.prototype.watch) {
   Object.defineProperty(Object.prototype, "watch", {
