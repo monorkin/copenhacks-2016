@@ -6,8 +6,13 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
-app.get('/encrypt', function (req, res) {
-  gpg.encrypt('Bok Luka', ['--armor', '--sign', '-r', 'luka.strizic@hotmail.com'], function(err, data){
+app.post('/encrypt', function (req, res) {
+  var args = ['--armor', '--sign'];
+  for(var i in req.body.recipients){
+    args.push('-r');
+    args.push(req.body.recipients[i]);
+  }
+  gpg.encrypt(req.body.message, args, function(err, data){
     console.log(err);
     res.send(data);
   });
@@ -21,5 +26,5 @@ app.post('/decrypt', function (req, res) {
 });
 
 app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+  console.log('Listening on port 3000!');
 });
