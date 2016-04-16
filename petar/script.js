@@ -55,7 +55,7 @@ if (!Object.prototype.unwatch) {
 
 //------
 
-console.log("Adding PGP support!");
+console.log('Adding PGP support!');
 
 var a =  null;
 
@@ -65,14 +65,17 @@ window.watch("__d", function(id, oldVal, newVal) {
       var oldUa = ua;
       var newUa = function(b, c, d, e, f, g, h, i) {
         var oldC = c;
+
         // Patch the factory function
         c = function(name) {
           var thing = oldC(name);
           var oldCreator = thing.createClass;
+
           // Patch the create class method so we can modify object maps on the fly
           thing.createClass = function(obj) {
+
             // Replace the getValue property if it is present
-            if(obj['displayName'] === "MessengerInput" && obj.hasOwnProperty('getValue')) {
+            if(obj.displayName === "MessengerInput" && obj.hasOwnProperty('getValue')) {
               if (!(obj._originals && obj._originals.getValue)) {
                 obj._originals = {};
                 obj._originals.getValue = obj.getValue;
@@ -89,6 +92,7 @@ window.watch("__d", function(id, oldVal, newVal) {
       };
       ua = newUa;
     }
+
     newVal(sa, ta, ua, va);
   };
 });
