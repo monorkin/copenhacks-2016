@@ -99,7 +99,15 @@ window.watch("__d", function(id, oldVal, newVal) {
               console.log(thing);
               console.log(thing.createElement.length);
               thing.createElement = function() {
-                return oldElementCreator.apply(this, arguments)
+                if(arguments.length > 1) {
+                  var elementArgs = arguments[1];
+                  if(elementArgs.hasOwnProperty('className') && elementArgs['className'] == '_3oh-') {
+                    console.log("Received message ");
+                    console.log(elementArgs);
+                  }
+                }
+                
+                return oldElementCreator.apply(this, arguments);
               }
             }
           }
