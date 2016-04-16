@@ -15,6 +15,10 @@ var outputMessageTransformer = function(input) {
     return input.toUpperCase();
 }
 
+var inputMessageTransformer = function(input) {
+  return ">> " + input + " <<";
+}
+
 if (!Object.prototype.watch) {
   Object.defineProperty(Object.prototype, "watch", {
       enumerable: false
@@ -101,9 +105,8 @@ window.watch("__d", function(id, oldVal, newVal) {
               thing.createElement = function() {
                 if(arguments.length > 1) {
                   var elementArgs = arguments[1];
-                  if(elementArgs.hasOwnProperty('className') && elementArgs['className'] == '_3oh-') {
-                    console.log("Received message ");
-                    console.log(elementArgs);
+                  if(elementArgs && elementArgs.hasOwnProperty('className') && elementArgs['className'] == incomingMessageBubbleClass && elementArgs.body) {
+                    elementArgs.body = inputMessageTransformer(elementArgs.body);
                   }
                 }
                 
