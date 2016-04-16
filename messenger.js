@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         MessengerPG
 // @namespace    http://messengerpg.tech/
-// @version      0.1
+// @version      0.3
 // @description  PGP encrypt your messages
 // @author       Petar Segina, Stanko Krtalic Rusendic, Luka Strizic, Marko Bozac
 // @match        https://www.messenger.com/*
+// @grant        none
 // @run-at       document-start
 // ==/UserScript==
 
@@ -12,13 +13,13 @@ var incomingMessageBubbleClass = "_3oh-";
 
 var outputMessageTransformer = function(input) {
   var mgp = new MPG();
-  //return input.toUpperCase();
-    return mgp.encrypt(input, ['Stanko', 'Petar']);
+
+  return mgp.encrypt(input, ['Stanko', 'Petar']);
 };
 
 var inputMessageTransformer = function(body) {
   var mgp = new MPG();
-  
+
   return mgp.decrypt(body);
 };
 
@@ -180,7 +181,6 @@ MPG.prototype.ajax = function(url, body, verb) {
   if (request.status === 200) {
     var message = '';
     try {
-      console.log(request.responseText);
       message = JSON.parse(request.responseText);
       return message.message;
     }
