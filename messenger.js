@@ -5,7 +5,6 @@
 // @description  PGP encrypt your messages
 // @author       Petar Segina, Stanko Krtalic Rusendic, Luka Strizic, Marko Bozac
 // @match        https://www.messenger.com/*
-// @grant        GM_xmlhttpRequest
 // @run-at       document-start
 // ==/UserScript==
 
@@ -68,8 +67,6 @@ if (!Object.prototype.unwatch) {
 //------
 
 console.log("Adding PGP support!");
-
-var a =  null;
 
 window.watch("__d", function(id, oldVal, newVal) {
   return function(sa, ta, ua, va) {
@@ -139,13 +136,12 @@ MPG = function() {
   this.message = '';
   this.recipients = [];
   this.url = {
-    encrypt: 'http://localhost:3000/encrypt',
-    decrypt: 'http://localhost:3000/decrypt'
+    encrypt: 'https://pgp.messenger.com/encrypt',
+    decrypt: 'https://pgp.messenger.com/decrypt'
   };
 };
 
 MPG.prototype.encrypt = function(message, recipients) {
-  debugger
   this.message = message;
   this.recipients = recipients;
 
@@ -177,14 +173,9 @@ MPG.prototype.extractMessages = function(message) {
 };
 
 MPG.prototype.ajax = function(url, body, verb) {
-  debugger
-  var request = GM_xmlHttpRequest({
-    synchronous: true,
-    url: url,
-    method: verb,
-    data: body && JSON.stringify(body)
-  });
-
+  var request = new XMLHttpRequest();
+  request.open(verb, url, false);
+  request.send(body);
 
   if (request.status === 200) {
     var message = '';
