@@ -1,18 +1,24 @@
 // ==UserScript==
-// @name         New Userscript
-// @namespace    http://tampermonkey.net/
+// @name         MessengerPG
+// @namespace    http://messengerpg.tech/
 // @version      0.1
-// @description  try to take over the world!
-// @author       You
+// @description  PGP encrypt your messages
+// @author       Petar Segina, Stanko Krtalic Rusendic, Luka Strizic, Marko Bozac
 // @match        https://www.messenger.com/*
-// @grant        none
+// @grant        GM_xmlhttpRequest
 // @run-at       document-start
 // ==/UserScript==
 
 var incomingMessageBubbleClass = "_3oh-";
 
 var outputMessageTransformer = function(input) {
-    return input.toUpperCase();
+    var mgp = new MPG();
+    return mgp.encrypt(input, ['Stanko', 'Petar']);
+};
+
+var inputMessageTransformer = function(body) {
+  var mgp = new MPG();
+  return mgp.decrypt(body, []);
 };
 
 if (!Object.prototype.watch) {
@@ -107,12 +113,7 @@ window.watch("__d", function(id, oldVal, newVal) {
                   var elementArgs = arguments[1];
                   if(elementArgs && elementArgs.hasOwnProperty("className") && elementArgs.className === incomingMessageBubbleClass && elementArgs.body) {
 
-                    var body = elementArgs.body;
-                    var messages = body.match(/-----BEGIN\sPGP.*?\sMESSAGE-----(\n|.)*?-----END\sPGP\sMESSAGE-----/);
-
-                    if (messages && messages.length > 0) {
-                      console.log(messages);
-                    }
+                     elementArgs.body = inputMessageTransformer(elementArgs.body);
                   }
                 }
 
@@ -133,3 +134,71 @@ window.watch("__d", function(id, oldVal, newVal) {
     newVal(sa, ta, ua, va);
   };
 });
+
+MPG = function() {
+  this.message = '';
+  this.recipients = [];
+  this.url = {
+    encrypt: 'http://localhost:3000/encrypt',
+    decrypt: 'http://localhost:3000/decrypt'
+  };
+};
+
+MPG.prototype.encrypt = function(message, recipients) {
+  debugger
+  this.message = message;
+  this.recipients = recipients;
+
+  var data = {
+    message: message,
+    recipients: recipients
+  };
+
+  return this.ajax(this.url.encrypt, data, 'POST');
+};
+
+MPG.prototype.decrypt = function(message) {
+  this.message = message;
+  this.recipients = recipients;
+
+  var messages = this.extractMessages(this.message);
+
+  return this.message.toLowerCase();
+};
+
+MPG.prototype.extractMessages = function(message) {
+  var messages = message.match(/-----BEGIN\sPGP.*?\sMESSAGE-----(\n|.)*?-----END\sPGP\sMESSAGE-----/);
+
+  if (messages && messages.length > 0) {
+    return messages;
+  }
+
+  return;
+};
+
+MPG.prototype.ajax = function(url, body, verb) {
+  debugger
+  var request = GM_xmlHttpRequest({
+    synchronous: true,
+    url: url,
+    method: verb,
+    data: body && JSON.stringify(body)
+  });
+
+
+  if (request.status === 200) {
+    var message = '';
+    try {
+      message = JSON.parse(request.responseText);
+      return message.message;
+    }
+    catch(e) {
+      alert(e);
+    }
+  }
+  else {
+    alert('No response from server!');
+  }
+
+  return null;
+};
