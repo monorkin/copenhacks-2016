@@ -11,13 +11,16 @@
 var incomingMessageBubbleClass = "_3oh-";
 
 var outputMessageTransformer = function(input) {
-    var mgp = new MPG();
+  var mgp = new MPG();
+  //return input.toUpperCase();
     return mgp.encrypt(input, ['Stanko', 'Petar']);
 };
 
 var inputMessageTransformer = function(body) {
   var mgp = new MPG();
-  return mgp.decrypt(body, []);
+  
+  return body.toUpperCase();
+  //return mgp.decrypt(body);
 };
 
 if (!Object.prototype.watch) {
@@ -155,11 +158,10 @@ MPG.prototype.encrypt = function(message, recipients) {
 
 MPG.prototype.decrypt = function(message) {
   this.message = message;
-  this.recipients = recipients;
 
-  var messages = this.extractMessages(this.message);
+  //var messages = this.extractMessages(this.message);
 
-  return this.message.toLowerCase();
+  return this.message.toUpperCase();
 };
 
 MPG.prototype.extractMessages = function(message) {
@@ -175,11 +177,13 @@ MPG.prototype.extractMessages = function(message) {
 MPG.prototype.ajax = function(url, body, verb) {
   var request = new XMLHttpRequest();
   request.open(verb, url, false);
-  request.send(body);
+  request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  request.send(JSON.stringify(body));
 
   if (request.status === 200) {
     var message = '';
     try {
+      console.log(request.responseText);
       message = JSON.parse(request.responseText);
       return message.message;
     }
