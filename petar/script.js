@@ -9,6 +9,8 @@
 // @run-at       document-start
 // ==/UserScript==
 
+var incomingMessageBubbleClass = "_3oh-";
+
 var outputMessageTransformer = function(input) {
     return input.toUpperCase();
 }
@@ -72,7 +74,8 @@ window.watch("__d", function(id, oldVal, newVal) {
         // Patch the factory function
         c = function(name) {
           var thing = oldC(name);
-          var oldCreator = thing.createClass;
+          var oldClassCreator = thing.createClass;
+
           // Patch the create class method so we can modify object maps on the fly
           thing.createClass = function(obj) {
             // Replace the getValue property if it is present
@@ -85,8 +88,25 @@ window.watch("__d", function(id, oldVal, newVal) {
                 };
               }
             }
-            return oldCreator(obj);
+            return oldClassCreator(obj);
           };
+          
+          // Patch the createElement method so that we can change element renderings on the fly
+          if(name === 'React') {
+            var oldElementCreator = thing.createElement;
+            if(oldElementCreator) {
+              console.log("Changing render method on ");
+              console.log(thing);
+              console.log(thing.createElement.length);
+              thing.createElement = function(m, n, o) {
+                if(n.hasOwnProperty('className') && m.className == incomingMessageBubbleClass) {
+                  console.log("Received message: " + n.body);
+                }
+                return oldElementCreator.bind(this)(m, n, o);
+              }
+            }
+          }
+          
           return thing;
         };
         return oldUa(b, c, d, e, f, g, h, i);
