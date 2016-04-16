@@ -14,14 +14,14 @@ app.post('/encrypt', function (req, res) {
   }
   gpg.encrypt(req.body.message, args, function(err, data){
     console.log(err);
-    res.send(data);
+    res.send(JSON.stringify({"message":data.toString(), "error":err}));
   });
 });
 
 app.post('/decrypt', function (req, res) {
   gpg.decrypt(req.body.message, [], function(err, contents){
     console.log(err);
-    res.send(contents);
+    res.send(JSON.stringify({"message":contents.toString(), "error":err}));
   });
 });
 
