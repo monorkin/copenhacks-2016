@@ -57,12 +57,11 @@ if (!Object.prototype.unwatch) {
 
 console.log("Adding PGP support!");
 
+var a =  null;
+
 window.watch("__d", function(id, oldVal, newVal) {
-  console.log("__d set to " + newVal.toString() + " | " + id);
-  window.unwatch("__d");
   return function(sa, ta, ua, va) {
     if(sa == 'MessengerComposerInput.react') {
-      console.log("__d sa=" + sa + "\nta=" + ta + "\nua=" + ua + "\nva=" + va);
       var oldUa = ua;
       var newUa = function(b, c, d, e, f, g, h, i) {
         var oldC = c;
@@ -74,13 +73,13 @@ window.watch("__d", function(id, oldVal, newVal) {
           thing.createClass = function(obj) {
             // Replace the getValue property if it is present
             if(obj['displayName'] === "MessengerInput" && obj.hasOwnProperty('getValue')) {
-              var oldGetter = obj.getValue;
-              obj.getValue = function() {
-                console.log("calling getValue()");
-                console.log(oldGetter);
-                debugger
-                return "oldGetter().toUpperCase()";
-              };
+              if (!(obj._originals && obj._originals.getValue)) {
+                obj._originals = {};
+                obj._originals.getValue = obj.getValue;
+                obj.getValue = function() {
+                  return this._originals.getValue.bind(this)().toUpperCase();
+                };
+              }
             }
             return oldCreator(obj);
           };
