@@ -19,8 +19,7 @@ var outputMessageTransformer = function(input) {
 var inputMessageTransformer = function(body) {
   var mgp = new MPG();
   
-  return body.toUpperCase();
-  //return mgp.decrypt(body);
+  return mgp.decrypt(body);
 };
 
 if (!Object.prototype.watch) {
@@ -159,9 +158,7 @@ MPG.prototype.encrypt = function(message, recipients) {
 MPG.prototype.decrypt = function(message) {
   this.message = message;
 
-  //var messages = this.extractMessages(this.message);
-
-  return this.message.toUpperCase();
+  return this.ajax(this.url.decrypt, { message: message }, 'POST');
 };
 
 MPG.prototype.extractMessages = function(message) {
