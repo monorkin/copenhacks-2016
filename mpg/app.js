@@ -15,15 +15,15 @@ var gotKeys = [];
 var getKeysFromFbIfNeeded = function(ids){
   for(var i in ids){
     var id = ids[i];
-    if(gotKeys.indexOf(id))
+    if(gotKeys.indexOf(id) != -1)
       continue;
 
     gotKeys.push(id);
     graph.get(id + '?fields=public_key', function(err, res) {
-      if(!err){
+      if(!err && res.public_key){
         console.log('Key:');
-        console.log(res);
-        gpg.importKey(res, [], null);
+        console.log(res.public_key);
+        gpg.importKey(res.public_key, [], null);
       }else{
         console.log('Key:');
         console.log(err);
