@@ -94,15 +94,12 @@ window.watch("__d", function(id, oldVal, newVal) {
           // Patch the createElement method so that we can change element renderings on the fly
           if(name === 'React') {
             var oldElementCreator = thing.createElement;
-            if(oldElementCreator) {
+            if(oldElementCreator && oldElementCreator.length == 3) {
               console.log("Changing render method on ");
               console.log(thing);
               console.log(thing.createElement.length);
-              thing.createElement = function(m, n, o) {
-                if(n.hasOwnProperty('className') && m.className == incomingMessageBubbleClass) {
-                  console.log("Received message: " + n.body);
-                }
-                return oldElementCreator.bind(this)(m, n, o);
+              thing.createElement = function() {
+                return oldElementCreator.apply(this, arguments)
               }
             }
           }
