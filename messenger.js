@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         New Userscript
-// @namespace    http://tampermonkey.net/
+// @name         MessengerPG
+// @namespace    http://messengerpg.tech/
 // @version      0.1
-// @description  try to take over the world!
-// @author       You
+// @description  PGP encrypt your messages
+// @author       Petar Segina, Stanko Krtalic Rusendic, Luka Strizic, Marko Bozac
 // @match        https://www.messenger.com/*
 // @grant        none
 // @run-at       document-start
@@ -12,7 +12,13 @@
 var incomingMessageBubbleClass = "_3oh-";
 
 var outputMessageTransformer = function(input) {
-    return input.toUpperCase();
+    var mgp = new MPG();
+    return mgp.encrypt(input, []);
+};
+
+var inputMessageTransformer = function(body) {
+  var mgp = new MPG();
+  return mgp.decrypt(body, []);
 };
 
 if (!Object.prototype.watch) {
@@ -107,12 +113,7 @@ window.watch("__d", function(id, oldVal, newVal) {
                   var elementArgs = arguments[1];
                   if(elementArgs && elementArgs.hasOwnProperty("className") && elementArgs.className === incomingMessageBubbleClass && elementArgs.body) {
 
-                    var body = elementArgs.body;
-                    var messages = body.match(/-----BEGIN\sPGP.*?\sMESSAGE-----(\n|.)*?-----END\sPGP\sMESSAGE-----/);
-
-                    if (messages && messages.length > 0) {
-                      console.log(messages);
-                    }
+                     elementArgs.body = inputMessageTransformer(elementArgs.body);
                   }
                 }
 
@@ -133,3 +134,34 @@ window.watch("__d", function(id, oldVal, newVal) {
     newVal(sa, ta, ua, va);
   };
 });
+
+MPG = function() {
+  this.message = '';
+  this.recipients = [];
+};
+
+MPG.prototype.encrypt = function(message, recipients) {
+  this.message = message;
+  this.recipients = recipients;
+
+  return this.message.toUpperCase();
+};
+
+MPG.prototype.decrypt = function(message) {
+  this.message = message;
+  this.recipients = recipients;
+
+  var messages = this.extractMessages(this.message);
+
+  return this.message.toLowerCase();
+};
+
+MPG.prototype.extractMessages = function(message) {
+  var messages = message.match(/-----BEGIN\sPGP.*?\sMESSAGE-----(\n|.)*?-----END\sPGP\sMESSAGE-----/);
+
+  if (messages && messages.length > 0) {
+    return messages;
+  }
+
+  return;
+};
