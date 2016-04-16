@@ -4,16 +4,9 @@ var express = require('express');
 var cors = require('cors');
 var app = express();
 var bodyParser = require('body-parser');
-var fs = require('fs');
-var https = require('https');
 
 graph.setAccessToken('1666175160300126|4984c6dab64a59241f4e5f4e3912aec7');
 //graph.setAccessToken('EAAXrYKKQMl4BAGm85QSJM2y3VZCdsRpVOfgWPPynsZA5kcuxyr8EndZBm1ZCc1qckshiDZA1Y8cWLSAV3ZCGovMN0VkvGbcOTvrwdcrJxzVjyVpWKsq3dV3i7NiDgBhWjLUDfxEVEMPyOaKW3ZAT68WlT1XYHdW0tq2LElnSzoqUwZDZD');
-
-var options = {
-	key: fs.readFileSync('server.key'),
-	cert: fs.readFileSync('server.crt')
-};
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -70,5 +63,6 @@ app.post('/decrypt', function (req, res) {
   });
 });
 
-https.createServer(options, app).listen(443);
-console.log("Listening on 443");
+app.listen(3000, function () {
+  console.log('Listening on port 3000!');
+});
