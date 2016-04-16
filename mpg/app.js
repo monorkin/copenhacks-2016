@@ -1,10 +1,12 @@
 var gpg = require('gpg')
 var express = require('express');
+var cors = require('cors');
 var app = express();
 var bodyParser = require('body-parser');
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(cors());
 
 app.post('/encrypt', function (req, res) {
   var args = ['--armor', '--sign'];
