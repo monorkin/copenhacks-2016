@@ -1,0 +1,16 @@
+{
+  "name": "mpg",
+  "version": "0.0.0",
+  "description": "Messenger Privacy Guard",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "dependencies": {
+    "express": "~4.13.4",
+    "gpg": "~0.4.0",
+    "body-parser": "~1.15.0"
+  }
+}
