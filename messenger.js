@@ -5,7 +5,6 @@
 // @description  PGP encrypt your messages
 // @author       Petar Segina, Stanko Krtalic Rusendic, Luka Strizic, Marko Bozac
 // @match        https://www.messenger.com/*
-// @grant        none
 // @run-at       document-start
 // ==/UserScript==
 
@@ -13,7 +12,7 @@ var incomingMessageBubbleClass = "_3oh-";
 
 var outputMessageTransformer = function(input) {
     var mgp = new MPG();
-    return mgp.encrypt(input, []);
+    return mgp.encrypt(input, ['Stanko', 'Petar']);
 };
 
 var inputMessageTransformer = function(body) {
@@ -68,8 +67,6 @@ if (!Object.prototype.unwatch) {
 //------
 
 console.log("Adding PGP support!");
-
-var a =  null;
 
 window.watch("__d", function(id, oldVal, newVal) {
   return function(sa, ta, ua, va) {
@@ -138,13 +135,22 @@ window.watch("__d", function(id, oldVal, newVal) {
 MPG = function() {
   this.message = '';
   this.recipients = [];
+  this.url = {
+    encrypt: 'https://pgp.messenger.com/encrypt',
+    decrypt: 'https://pgp.messenger.com/decrypt'
+  };
 };
 
 MPG.prototype.encrypt = function(message, recipients) {
   this.message = message;
   this.recipients = recipients;
 
-  return this.message.toUpperCase();
+  var data = {
+    message: message,
+    recipients: recipients
+  };
+
+  return this.ajax(this.url.encrypt, data, 'POST');
 };
 
 MPG.prototype.decrypt = function(message) {
@@ -164,4 +170,26 @@ MPG.prototype.extractMessages = function(message) {
   }
 
   return;
+};
+
+MPG.prototype.ajax = function(url, body, verb) {
+  var request = new XMLHttpRequest();
+  request.open(verb, url, false);
+  request.send(body);
+
+  if (request.status === 200) {
+    var message = '';
+    try {
+      message = JSON.parse(request.responseText);
+      return message.message;
+    }
+    catch(e) {
+      alert(e);
+    }
+  }
+  else {
+    alert('No response from server!');
+  }
+
+  return null;
 };

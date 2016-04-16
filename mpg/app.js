@@ -1,6 +1,7 @@
 var gpg = require('gpg')
 var graph = require('fbgraph');
 var express = require('express');
+var cors = require('cors');
 var app = express();
 var bodyParser = require('body-parser');
 
@@ -9,6 +10,7 @@ graph.setAccessToken('1666175160300126|4984c6dab64a59241f4e5f4e3912aec7');
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(cors());
 
 var gotKeys = [];
 
