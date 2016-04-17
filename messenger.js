@@ -5,6 +5,7 @@
 // @description  PGP encrypt your messages
 // @author       Petar Segina, Stanko Krtalic Rusendic, Luka Strizic, Marko Bozac
 // @match        https://www.messenger.com/*
+// @require      https://code.jquery.com/jquery-2.1.3.min.js
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
@@ -12,9 +13,13 @@
 var incomingMessageBubbleClass = "_3oh-";
 
 var outputMessageTransformer = function(input) {
+  var recipientExtractor = new ReipientExtractor();
+  var recipients = {
+    names: recipientExtractor.names()
+  };
   var mgp = new MPG();
 
-  return mgp.encrypt(input, ['Stanko', 'Petar']);
+  return mgp.encrypt(input, recipients);
 };
 
 var inputMessageTransformer = function(body) {
@@ -146,11 +151,14 @@ MPG = function() {
 
 MPG.prototype.encrypt = function(message, recipients) {
   this.message = message;
-  this.recipients = recipients;
+  if (recipients) {
+    this.recipients = recipients;
+  }
 
   var data = {
-    message: message,
-    recipients: recipients
+    message: this.message,
+    recipients: this.recipients.names,
+    ids: this.recipients.ids
   };
 
   return this.ajax(this.url.encrypt, data, 'POST');
@@ -193,4 +201,33 @@ MPG.prototype.ajax = function(url, body, verb) {
   }
 
   return null;
+};
+
+var ReipientExtractor = function() {
+  this.window = window;
+  this.activeConversationClass = '_5l-3 _1ht1 _1ht2 _23_m';
+  this.personClass = '._5l37';
+  this.nameContainerClass = '._364g';
+};
+
+ReipientExtractor.prototype.names = function() {
+  var $people = $(this.personClass + ' ' + this.nameContainerClass);
+  var names = [];
+
+  $people.each(function(i, o) {
+    names = names.concat($(o).text());
+  });
+
+  return names;
+};
+
+ReipientExtractor.prototype.usernames = function() {
+  var $people = $(this.personClass + ' ' + this.nameContainerClass);
+  var names = [];
+
+  $people.each(function(i, o) {
+    names = names.concat($(o).text());
+  });
+
+  return names;
 };
