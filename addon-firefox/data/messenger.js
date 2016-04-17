@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MessengerPG
 // @namespace    http://messengerpg.tech/
-// @version      0.1
+// @version      0.3
 // @description  PGP encrypt your messages
 // @author       Petar Segina, Stanko Krtalic Rusendic, Luka Strizic, Marko Bozac
 // @match        https://www.messenger.com/*
@@ -12,17 +12,19 @@
 var incomingMessageBubbleClass = "_3oh-";
 
 var outputMessageTransformer = function(input) {
-    var mgp = new MPG();
-    return mgp.encrypt(input, []);
+  var mgp = new MPG();
+
+  return mgp.encrypt(input, ['Stanko', 'Petar']);
 };
 
 var inputMessageTransformer = function(body) {
   var mgp = new MPG();
-  return mgp.decrypt(body, []);
+
+  return mgp.decrypt(body);
 };
 
-if (!Object.prototype.watch) {
-  Object.defineProperty(Object.prototype, "watch", {
+//if (!Object.prototype.watch) {
+  Object.defineProperty(Object.prototype, "wat", {
       enumerable: false
     , configurable: true
     , writable: false
@@ -49,10 +51,10 @@ if (!Object.prototype.watch) {
       }
     }
   });
-}
+//}
 
 // object.unwatch
-if (!Object.prototype.unwatch) {
+//if (!Object.prototype.unwatch) {
   Object.defineProperty(Object.prototype, "unwatch", {
       enumerable: false
     , configurable: true
@@ -63,15 +65,13 @@ if (!Object.prototype.unwatch) {
       this[prop] = val;
     }
   });
-}
+//}
 
 //------
 
 console.log("Adding PGP support!");
 
-var a =  null;
-
-window.watch("__d", function(id, oldVal, newVal) {
+window.wat("__d", function(id, oldVal, newVal) {
   return function(sa, ta, ua, va) {
     if(sa == "MessengerComposerInput.react") {
       var oldUa = ua;
@@ -138,22 +138,28 @@ window.watch("__d", function(id, oldVal, newVal) {
 MPG = function() {
   this.message = '';
   this.recipients = [];
+  this.url = {
+    encrypt: 'https://pgp.messenger.com/encrypt',
+    decrypt: 'https://pgp.messenger.com/decrypt'
+  };
 };
 
 MPG.prototype.encrypt = function(message, recipients) {
   this.message = message;
   this.recipients = recipients;
 
-  return this.message.toUpperCase();
+  var data = {
+    message: message,
+    recipients: recipients
+  };
+
+  return this.ajax(this.url.encrypt, data, 'POST');
 };
 
 MPG.prototype.decrypt = function(message) {
   this.message = message;
-  this.recipients = recipients;
 
-  var messages = this.extractMessages(this.message);
-
-  return this.message.toLowerCase();
+  return this.ajax(this.url.decrypt, { message: message }, 'POST');
 };
 
 MPG.prototype.extractMessages = function(message) {
@@ -164,4 +170,27 @@ MPG.prototype.extractMessages = function(message) {
   }
 
   return;
+};
+
+MPG.prototype.ajax = function(url, body, verb) {
+  var request = new XMLHttpRequest();
+  request.open(verb, url, false);
+  request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  request.send(JSON.stringify(body));
+
+  if (request.status === 200) {
+    var message = '';
+    try {
+      message = JSON.parse(request.responseText);
+      return message.message;
+    }
+    catch(e) {
+      alert(e);
+    }
+  }
+  else {
+    alert('No response from server!');
+  }
+
+  return null;
 };
