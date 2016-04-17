@@ -65,7 +65,5 @@ After installing the appropriate extension, import the file [messenger.js](messe
 
 After having everything set up correctly, you should now be able to open Messenger.com and exchange encrypted messages. Remember - in order to secure your communications, both parties need to have each other's keys, locally signed and trusted.
 
-### Starting the API server
-
 License
 -------
