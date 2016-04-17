@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MessengerPG
 // @namespace    http://messengerpg.tech/
-// @version      0.3
+// @version      0.0.4
 // @description  PGP encrypt your messages
 // @author       Petar Segina, Stanko Krtalic Rusendic, Luka Strizic, Marko Bozac
 // @match        https://www.messenger.com/*
