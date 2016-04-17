@@ -39,7 +39,7 @@ To do this, open `/etc/hosts` (on OSX and Linux) and add the following line:
 
 ```sh
 cd mpg;
-node https_proxy.js
+node https_proxy.js;
 ```
 
 #### 3. Accept or import the proxy SSL certificate
