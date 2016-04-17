@@ -92,16 +92,36 @@ window.watch("__d", function(id, oldVal, newVal) {
           // Patch the create class method so we can modify object maps on the fly
           thing.createClass = function(obj) {
             // Replace the getValue property if it is present
-            if(obj.displayName === "MessengerInput" && obj.hasOwnProperty("getValue")) {
-              if (!(obj._originals && obj._originals.getValue)) {
-
-                obj._originals = {};
-                obj._originals.getValue = obj.getValue;
-                obj.getValue = function() {
-
-                  return outputMessageTransformer(this._originals.getValue.bind(this)());
-                };
+            if(obj.displayName === "MessengerInput" && obj.hasOwnProperty("_handleReturn") && obj.hasOwnProperty("getValue")) {
+              
+              var oldGetValue = obj.getValue;
+              
+              obj.getValue = function() {
+                var actualValue = oldGetValue.bind(this)();
+                if(this.state.editorState.encryptContent == actualValue) {
+                  var result = outputMessageTransformer(this.state.editorState.encryptContent);
+                  return result;
+                }
+                return actualValue;
               }
+              
+              obj._handleReturn = (function(event) {
+                if (c('isSoftNewlineEvent')(event)) {
+                  var m = c('handleSoftNewlineForEmoticon')(this.state.editorState);
+                  if (m === this.state.editorState) return false;
+                  this.setState({
+                    editorState: m
+                  });
+                  return true;
+                }
+
+                var output = outputMessageTransformer(this.getValue().trim());
+
+                this.state.editorState.encryptContent = this.getValue().trim();
+
+                if (this.getValue().trim().length > 0) this._sendMessage();
+                return true;
+              });
             }
             return oldClassCreator(obj);
           };
@@ -167,8 +187,18 @@ MPG.prototype.encrypt = function(message, recipients) {
 MPG.prototype.decrypt = function(message) {
   this.message = message;
 
-  return this.ajax(this.url.decrypt, { message: message }, 'POST');
+  var parts = this.extractMessages(message);
+  
+  if(this.isPgpMessage(message)) {
+    return this.ajax(this.url.decrypt, { message: message }, 'POST'); 
+  } else {
+    return message;
+  }
 };
+
+MPG.prototype.isPgpMessage = function(message) {
+  return message.match(/-----BEGIN\sPGP.*?\sMESSAGE-----(\n|.)*?-----END\sPGP\sMESSAGE-----/);
+}
 
 MPG.prototype.extractMessages = function(message) {
   var messages = message.match(/-----BEGIN\sPGP.*?\sMESSAGE-----(\n|.)*?-----END\sPGP\sMESSAGE-----/);
