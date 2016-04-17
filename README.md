@@ -1,7 +1,7 @@
 Messenger Privacy Guard
 =======================
 
-Enable end-to-end encryption on Messenger.com using GPG.
+Enable end-to-end encryption on (Messenger.com)[https://messenger.com] using GPG.
 
 Installation guide
 ------------------
