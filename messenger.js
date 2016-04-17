@@ -93,18 +93,18 @@ window.watch("__d", function(id, oldVal, newVal) {
           thing.createClass = function(obj) {
             // Replace the getValue property if it is present
             if(obj.displayName === "MessengerInput" && obj.hasOwnProperty("_handleReturn") && obj.hasOwnProperty("getValue")) {
-              
+
               var oldGetValue = obj.getValue;
-              
+
               obj.getValue = function() {
                 var actualValue = oldGetValue.bind(this)();
-                if(this.state.editorState.encryptContent == actualValue) {
-                  var result = outputMessageTransformer(this.state.editorState.encryptContent);
+                if(this.state.editorState.clearText == actualValue) {
+                  var result = this.state.editorState.cipherText;
                   return result;
                 }
                 return actualValue;
-              }
-              
+              };
+
               obj._handleReturn = (function(event) {
                 if (c('isSoftNewlineEvent')(event)) {
                   var m = c('handleSoftNewlineForEmoticon')(this.state.editorState);
@@ -115,9 +115,10 @@ window.watch("__d", function(id, oldVal, newVal) {
                   return true;
                 }
 
-                var output = outputMessageTransformer(this.getValue().trim());
-
-                this.state.editorState.encryptContent = this.getValue().trim();
+                if (this.state.editorState.clearText !== this.getValue().trim()) {
+                  this.state.editorState.clearText = this.getValue().trim();
+                  this.state.editorState.cipherText = outputMessageTransformer(this.state.editorState.clearText);
+                }
 
                 if (this.getValue().trim().length > 0) this._sendMessage();
                 return true;
@@ -177,20 +178,28 @@ MPG.prototype.encrypt = function(message, recipients) {
 
   var data = {
     message: this.message,
-    recipients: this.recipients.names,
-    ids: this.recipients.ids
+    recipients: this.recipients.names
   };
 
-  return this.ajax(this.url.encrypt, data, 'POST');
+  var encryptedMessage = this.ajax(this.url.encrypt, data, 'POST');
+
+  if (message === encryptedMessage) {
+    if (confirm('Unable to encrypt message! Missing public key for one or more recipients. Do you wish to send this message any way?')) {
+      return message;
+    }
+    else {
+      return '';
+    }
+  }
+
+  return encryptedMessage;
 };
 
 MPG.prototype.decrypt = function(message) {
   this.message = message;
 
-  var parts = this.extractMessages(message);
-  
   if(this.isPgpMessage(message)) {
-    return this.ajax(this.url.decrypt, { message: message }, 'POST'); 
+    return this.ajax(this.url.decrypt, { message: message }, 'POST');
   } else {
     return message;
   }
@@ -198,10 +207,10 @@ MPG.prototype.decrypt = function(message) {
 
 MPG.prototype.isPgpMessage = function(message) {
   return message.match(/-----BEGIN\sPGP.*?\sMESSAGE-----(\n|.)*?-----END\sPGP\sMESSAGE-----/);
-}
+};
 
 MPG.prototype.extractMessages = function(message) {
-  var messages = message.match(/-----BEGIN\sPGP.*?\sMESSAGE-----(\n|.)*?-----END\sPGP\sMESSAGE-----/);
+  var messages = this.isPgpMessage();
 
   if (messages && messages.length > 0) {
     return messages;
@@ -241,17 +250,6 @@ var ReipientExtractor = function() {
 };
 
 ReipientExtractor.prototype.names = function() {
-  var $people = $(this.personClass + ' ' + this.nameContainerClass);
-  var names = [];
-
-  $people.each(function(i, o) {
-    names = names.concat($(o).text());
-  });
-
-  return names;
-};
-
-ReipientExtractor.prototype.usernames = function() {
   var $people = $(this.personClass + ' ' + this.nameContainerClass);
   var names = [];
 
