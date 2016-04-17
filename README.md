@@ -16,7 +16,7 @@ Your browser needs to be able to load userscripts. We've tested with Greasemonke
 
 ### Cloning the project
 
-```
+```#!/bin/bash
 cd mpg;
 npm install;
 ```
@@ -37,7 +37,7 @@ To do this, open `/etc/hosts` (on OSX and Linux) and add the following line:
 
 #### 2. Start the HTTPS proxy server
 
-```
+```#!/bin/bash
 cd mpg;
 node https_proxy.js
 ```
@@ -50,7 +50,7 @@ If you now open [https://pgp.messenger.com](https://pgp.messenger.com) in your b
 
 In order for the userscript to communicate with your local GPG keychain, we've built a simple API server which provides encryption and decryption functionalities. You can start it with:
 
-```
+```#!/bin/bash
 cd mpg;
 node app.js;
 ```
