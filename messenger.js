@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MessengerPG
 // @namespace    http://messengerpg.tech/
-// @version      0.0.4
+// @version      0.3
 // @description  PGP encrypt your messages
 // @author       Petar Segina, Stanko Krtalic Rusendic, Luka Strizic, Marko Bozac
 // @match        https://www.messenger.com/*
@@ -27,6 +27,10 @@ var inputMessageTransformer = function(body) {
 
   return mgp.decrypt(body);
 };
+
+// -------------------------------------------------
+//                 WATCH & UNWATCH
+// -------------------------------------------------
 
 if (!Object.prototype.watch) {
   Object.defineProperty(Object.prototype, "watch", {
@@ -72,9 +76,11 @@ if (!Object.prototype.unwatch) {
   });
 }
 
-//------
+// -------------------------------------------------
+//            MESSENGER PRIVACY GUARD
+// -------------------------------------------------
 
-console.log("Adding PGP support!");
+console.log("Adding PGP support...");
 
 window.watch("__d", function(id, oldVal, newVal) {
   return function(sa, ta, ua, va) {
@@ -160,6 +166,8 @@ window.watch("__d", function(id, oldVal, newVal) {
     newVal(sa, ta, ua, va);
   };
 });
+
+console.log("Added PGP support!");
 
 MPG = function() {
   this.message = '';
