@@ -159,8 +159,18 @@ MPG.prototype.encrypt = function(message, recipients) {
 MPG.prototype.decrypt = function(message) {
   this.message = message;
 
-  return this.ajax(this.url.decrypt, { message: message }, 'POST');
+  var parts = this.extractMessages(message);
+  
+  if(this.isPgpMessage(message)) {
+    return this.ajax(this.url.decrypt, { message: message }, 'POST'); 
+  } else {
+    return message;
+  }
 };
+
+MPG.prototype.isPgpMessage = function(message) {
+  return message.match(/-----BEGIN\sPGP.*?\sMESSAGE-----(\n|.)*?-----END\sPGP\sMESSAGE-----/);
+}
 
 MPG.prototype.extractMessages = function(message) {
   var messages = message.match(/-----BEGIN\sPGP.*?\sMESSAGE-----(\n|.)*?-----END\sPGP\sMESSAGE-----/);
