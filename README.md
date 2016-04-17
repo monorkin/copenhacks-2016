@@ -69,3 +69,7 @@ After having everything set up correctly, you should now be able to open Messeng
 
 License
 -------
+
+This project and it's components (except [web](web)) are released under the GPLv3 license. The text of the license is present in the file [LICENSE](LICENSE).
+
+The [web](web) component is a modification of a template by HTML5 UP which was made available under CCA 3.0.
