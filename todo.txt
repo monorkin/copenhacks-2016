@@ -1,0 +1,9 @@
+1. Fixati performanse
+2. Recipients lista = imena sudionika razgovora
+3. Doraditi web page
+		dodati screenshotove
+		dodati upute za instalaciju
+4. Vizualni indikator kriptiranih poruka
+5. Ne slati ako poruka nije kriptirana
+6. Ako nema pubkeyeva svih sudionika, pokazati da razgovor nije kriptiran
+7. Toggle za enkripciju
