@@ -8,6 +8,8 @@ Installation guide
 
 This userscript currently isn't self contained - in order to communicate with your local GPG keychain, a GPG API server is needed, as well as some local set-up.
 
+This project is the result of Team Floki's 24 hour hackaton attendance at [Copenhacks](http://copenhacks.com/). As such, the project is currently just a *Proof of Concept*. Encrypted conversations work and data is encrypted and decrypted on the fly. However, there are no guarantees regarding the security and validity of the solution. Please remember to be careful when dealing with sensitive data.
+
 ### Requirements
 
 To use this project, you need to have a recent version of GPG, NodeJS and NPM installed.
